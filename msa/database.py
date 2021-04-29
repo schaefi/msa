@@ -35,21 +35,19 @@ class MSADataBase:
         delete_table_webcheck = dedent('''
             DROP TABLE webcheck
         ''').strip()
-        self.db_cursor.execute(delete_table_webcheck)
-        self.db_connection.commit()
+        self.__execute_and_commit(delete_table_webcheck)
 
     def create_table(self) -> None:
         create_table_webcheck = dedent('''
             CREATE TABLE webcheck
             (ID INT GENERATED ALWAYS AS IDENTITY,
             PAGE     TEXT        NOT NULL,
-            RQAT     TIMESTAMP   NOT NULL,
+            DATE     TIMESTAMP   NOT NULL,
             STATUS   INTEGER     NOT NULL,
             RTIME    REAL        NOT NULL,
             TAG      TEXT)
         ''').strip()
-        self.db_cursor.execute(create_table_webcheck)
-        self.db_connection.commit()
+        self.__execute_and_commit(create_table_webcheck)
 
     def insert(
         self, url: str, date: str, status_code: int,
@@ -60,7 +58,7 @@ class MSADataBase:
         )
         insert_into_webcheck = dedent('''
             INSERT INTO webcheck
-            (PAGE, RQAT, STATUS, RTIME, TAG)
+            (PAGE, DATE, STATUS, RTIME, TAG)
             VALUES('{0}', '{1}', {2}, {3}, {4})
         ''').format(
             url,
@@ -69,5 +67,8 @@ class MSADataBase:
             response_time,
             f'\'{flag}\'' if flag else 'NULL'
         ).strip()
-        self.db_cursor.execute(insert_into_webcheck)
+        self.__execute_and_commit(insert_into_webcheck)
+
+    def __execute_and_commit(self, query):
+        self.db_cursor.execute(query)
         self.db_connection.commit()
