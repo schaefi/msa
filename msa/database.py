@@ -25,25 +25,29 @@ class MSADataBase:
         create_table_webcheck = dedent('''
             CREATE TABLE webcheck
             (ID INT GENERATED ALWAYS AS IDENTITY,
+            PAGE     TEXT        NOT NULL,
             RQAT     TIMESTAMP   NOT NULL,
             STATUS   INTEGER     NOT NULL,
             RTIME    REAL        NOT NULL,
-            TAG      TEXT);
+            TAG      TEXT)
         ''').strip()
         self.db_cursor.execute(create_table_webcheck)
         self.db_connection.commit()
 
     def insert(
-        self, status_code: int, response_time: float, flag: str = None
+        self, url: str, date: str, status_code: int,
+        response_time: float, flag: str = None
     ) -> None:
-        creation_date = datetime.utcnow().strftime(
-            '%Y-%m-%dT%H:%M:%S+00:00'
+        request_date = datetime.strptime(
+            date, '%Y-%m-%dT%H:%M:%S+00:00'
         )
         insert_into_webcheck = dedent('''
             INSERT INTO webcheck
-            (RQAT, STATUS, RTIME, TAG) VALUES ('{0}', {1}, {2}, {3})
+            (PAGE, RQAT, STATUS, RTIME, TAG)
+            VALUES('{0}', '{1}', {2}, {3}, {4})
         ''').format(
-            creation_date,
+            url,
+            request_date,
             status_code,
             response_time,
             f'\'{flag}\'' if flag else 'NULL'
