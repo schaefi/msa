@@ -24,7 +24,7 @@ class TestMSADataBase:
             CREATE TABLE webcheck
             (ID INT GENERATED ALWAYS AS IDENTITY,
             PAGE     TEXT        NOT NULL,
-            RQAT     TIMESTAMP   NOT NULL,
+            DATE     TIMESTAMP   NOT NULL,
             STATUS   INTEGER     NOT NULL,
             RTIME    REAL        NOT NULL,
             TAG      TEXT)
@@ -40,7 +40,7 @@ class TestMSADataBase:
         )
         insert_into_webcheck = dedent('''
             INSERT INTO webcheck
-            (PAGE, RQAT, STATUS, RTIME, TAG)
+            (PAGE, DATE, STATUS, RTIME, TAG)
             VALUES('https://example.org', '2021-04-29 01:55:19', 404, 42, NULL)
         ''').strip()
         self.msa_db.db_cursor.execute.assert_called_once_with(
@@ -53,7 +53,7 @@ class TestMSADataBase:
         )
         insert_into_webcheck = dedent('''
             INSERT INTO webcheck
-            (PAGE, RQAT, STATUS, RTIME, TAG)
+            (PAGE, DATE, STATUS, RTIME, TAG)
             VALUES('https://example.org', '2021-04-29 01:55:19', 404, 42, 'tag')
         ''').strip()
         self.msa_db.db_cursor.execute.assert_called_once_with(
