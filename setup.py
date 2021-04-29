@@ -23,7 +23,8 @@ config = {
     'install_requires': [
         'docopt',
         'psycopg2',
-        'kafka-python'
+        'kafka-python',
+        'requests'
     ],
     'packages': ['msa'],
     'entry_points': {
