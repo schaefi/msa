@@ -26,6 +26,7 @@ options:
 """
 from docopt import docopt
 from msa.version import __version__
+from msa.metrics import MSAMetrics
 
 # 1. lookup the metrics of the web site
 # 2. store the information as a message in kafka
@@ -38,4 +39,15 @@ def main():
         options_first=True
     )
 
-    print(f'Here we go... {args}')
+    metrics = MSAMetrics(url=args['--page'])
+
+    print(f'Status: {metrics.get_status_code()}')
+    print(f'Time(sec): {metrics.get_response_time()}')
+    print(f'Date: {metrics.get_response_date()}')
+    if args['--regexp']:
+        print(f'Tag: {metrics.get_flag_status(args["--regexp"])}')
+
+    # store the information as a message in kafka
+    # Something like
+    # kafka = MSAKafka(metrics)
+    # kafka.send()
