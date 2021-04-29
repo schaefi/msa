@@ -1,0 +1,11 @@
+[run]
+omit =
+    */version.py
+    */msa_store.py
+    */msa_lookup.py
+
+[report]
+omit =
+    */version.py
+    */msa_store.py
+    */msa_lookup.py

@@ -1,0 +1,17 @@
+# Manifest describing source package contents
+
+graft msa/config
+
+include README.rst
+include LICENSE
+include tox.ini
+
+recursive-include test *.py
+
+include .bumpversion.cfg
+include .coverage*
+
+include .virtualenv.requirements.txt
+include .virtualenv.dev-requirements.txt
+
+global-exclude *.py[cod] __pycache__
