@@ -23,37 +23,38 @@ class TestMSADataBase:
         create_table_webcheck = dedent('''
             CREATE TABLE webcheck
             (ID INT GENERATED ALWAYS AS IDENTITY,
+            PAGE     TEXT        NOT NULL,
             RQAT     TIMESTAMP   NOT NULL,
             STATUS   INTEGER     NOT NULL,
             RTIME    REAL        NOT NULL,
-            TAG      TEXT);
+            TAG      TEXT)
         ''').strip()
         self.msa_db.db_cursor.execute.assert_called_once_with(
             create_table_webcheck
         )
 
-    @patch('msa.database.datetime')
-    def test_insert_table(self, mock_datetime):
-        strftime = Mock()
-        strftime.strftime = Mock(return_value='current_date')
-        mock_datetime.utcnow = Mock(
-            return_value=strftime
-        )
+    def test_insert_table(self):
         # test on insert with NULL type tag
-        self.msa_db.insert(404, 42)
+        self.msa_db.insert(
+            'https://example.org', '2021-04-29T01:55:19+00:00', 404, 42
+        )
         insert_into_webcheck = dedent('''
             INSERT INTO webcheck
-            (RQAT, STATUS, RTIME, TAG) VALUES ('current_date', 404, 42, NULL)
+            (PAGE, RQAT, STATUS, RTIME, TAG)
+            VALUES('https://example.org', '2021-04-29 01:55:19', 404, 42, NULL)
         ''').strip()
         self.msa_db.db_cursor.execute.assert_called_once_with(
             insert_into_webcheck
         )
         # test on insert with some tag
         self.msa_db.db_cursor.execute.reset_mock()
-        self.msa_db.insert(404, 42, 'tag')
+        self.msa_db.insert(
+            'https://example.org', '2021-04-29T01:55:19+00:00', 404, 42, 'tag'
+        )
         insert_into_webcheck = dedent('''
             INSERT INTO webcheck
-            (RQAT, STATUS, RTIME, TAG) VALUES ('current_date', 404, 42, 'tag')
+            (PAGE, RQAT, STATUS, RTIME, TAG)
+            VALUES('https://example.org', '2021-04-29 01:55:19', 404, 42, 'tag')
         ''').strip()
         self.msa_db.db_cursor.execute.assert_called_once_with(
             insert_into_webcheck
