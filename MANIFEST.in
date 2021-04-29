@@ -1,7 +1,5 @@
 # Manifest describing source package contents
 
-graft msa/config
-
 include README.rst
 include LICENSE
 include tox.ini
