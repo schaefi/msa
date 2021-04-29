@@ -1,0 +1,5 @@
+host: kafka-example.com:12345
+topic: ms-intro
+ssl_cafile: ca.pem
+ssl_certfile: service.cert
+ssl_keyfile: service.key

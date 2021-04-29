@@ -18,12 +18,27 @@
 """
 usage: msa-store -h | --help
        msa-store
+           [--update-interval=<time_sec>]
+           [--foreground]
+       msa-store --dump-db
+
+options:
+    --dump-db
+        Print the database
+
+    --foreground
+        Optional stay in the foreground, blocking the terminal.
+        Default is in background mode
+
+    --update-interval=<time_sec>
+        Optional update interval to check for messages and
+        writing into the database. Default is 30sec
 """
 from docopt import docopt
 from msa.version import __version__
-
-# 1. read from the kafka topic
-# 2. store the information in the database
+from msa.kafka import MSAKafka
+# from msa.database import MSADataBase
+from msa.defaults import Defaults
 
 
 def main():
@@ -33,4 +48,20 @@ def main():
         options_first=True
     )
 
-    print(f'Here we go... {args}')
+    # db = MSADataBase(
+    #     config_file=Defaults.get_db_config()
+    # )
+
+    if args['--dump-db']:
+        # TODO: print the database, SELECT * from webcheck
+        # needs to be implemented in the database code
+        pass
+
+    kafka = MSAKafka(
+        config_file=Defaults.get_kafka_config()
+    )
+
+    print(kafka.read())
+    # TODO: implement interval timer,
+    # store the information in the database,
+    # fork as a daemon

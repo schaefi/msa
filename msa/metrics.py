@@ -16,14 +16,26 @@
 # along with MSA.  If not, see <http://www.gnu.org/licenses/>
 #
 from datetime import datetime
+from typing import Optional
 import requests
 import re
 
 
 class MSAMetrics:
-    def __init__(self, url: str, timeout: int = 30) -> None:
+    def __init__(
+        self, url: str, matches: str = '', timeout: int = 30
+    ) -> None:
+        self.url = url
+        self.expression = matches
         self.response = requests.get(url, timeout=timeout)
         self.response_date = datetime.utcnow()
+        if self.expression:
+            self.content_matches_expression = bool(
+                re.match(f'{self.expression}', format(self.response.content))
+            )
+
+    def get_page(self) -> str:
+        return self.url
 
     def get_status_code(self) -> int:
         return self.response.status_code
@@ -39,8 +51,7 @@ class MSAMetrics:
             '%Y-%m-%dT%H:%M:%S+00:00'
         )
 
-    def get_flag_status(self, expression: str) -> str:
-        content_matches = bool(
-            re.match(f'{expression}', format(self.response.content))
-        )
-        return f'{expression!r} : {content_matches}'
+    def get_tag(self) -> Optional[str]:
+        if self.expression:
+            return f'{self.expression!r} : {self.content_matches_expression}'
+        return None

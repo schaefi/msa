@@ -26,7 +26,7 @@ class MSADataBase:
     def __init__(self, config_file: str) -> None:
         with open(config_file, 'r') as config:
             self.db_config = yaml.safe_load(config)
-        self.db_connection = psycopg2.connect(self.db_config.get('db_uri'))
+        self.db_connection = psycopg2.connect(self.db_config['db_uri'])
         self.db_cursor = self.db_connection.cursor(
             cursor_factory=RealDictCursor
         )

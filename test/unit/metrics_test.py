@@ -17,20 +17,32 @@ class TestMSAMetrics:
         self.response = MagicMock()
         self.response.content = 'some artificial content'
         mock_request_get.return_value = self.response
-        self.metrics = MSAMetrics(url="some-uri")
+        self.metrics_simple = MSAMetrics(url='https://simple')
+        self.metrics_matches = MSAMetrics(
+            url='https://smart', matches='.*artificial'
+        )
+        self.metrics_nomatch = MSAMetrics(
+            url='https://smart', matches='XXX'
+        )
 
     def test_get_status_code(self):
-        assert self.metrics.get_status_code() == self.response.status_code
+        assert self.metrics_simple.get_status_code() == \
+            self.response.status_code
 
     def test_get_response_time(self):
-        assert self.metrics.get_response_time() == \
+        assert self.metrics_simple.get_response_time() == \
             self.response.elapsed.total_seconds.return_value
 
     def test_get_response_date(self):
-        assert self.metrics.get_response_date() == '2021-04-29T01:55:19+00:00'
+        assert self.metrics_simple.get_response_date() == \
+            '2021-04-29T01:55:19+00:00'
+
+    def test_get_page(self):
+        assert self.metrics_simple.get_page() == 'https://simple'
 
     def test_get_flag_status(self):
-        assert self.metrics.get_flag_status('.*artificial') == \
+        assert self.metrics_simple.get_tag() is None
+        assert self.metrics_matches.get_tag() == \
             "'.*artificial' : True"
-        assert self.metrics.get_flag_status('XXX') == \
+        assert self.metrics_nomatch.get_tag() == \
             "'XXX' : False"
