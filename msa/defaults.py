@@ -15,34 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with MSA.  If not, see <http://www.gnu.org/licenses/>
 #
-"""
-usage: msa-lookup -h | --help
-       msa-lookup --page=<uri>
-           [--regexp=<expression>]
-
-options:
-    --regexp=<expression>
-        Optional expression to match against the page content.
-"""
-from docopt import docopt
-from msa.version import __version__
-from msa.metrics import MSAMetrics
-from msa.kafka import MSAKafka
-from msa.defaults import Defaults
+import os
 
 
-def main():
-    args = docopt(
-        __doc__,
-        version='MSA (lookup) version ' + __version__,
-        options_first=True
-    )
+class Defaults:
+    @staticmethod
+    def get_db_config():
+        return os.path.join(Defaults.__conf_path(), 'db.yml')
 
-    metrics = MSAMetrics(
-        url=args['--page'], matches=args['--regexp']
-    )
+    @staticmethod
+    def get_kafka_config():
+        return os.path.join(Defaults.__conf_path(), 'kafka.yml')
 
-    kafka = MSAKafka(
-        config_file=Defaults.get_kafka_config()
-    )
-    kafka.send(metrics)
+    @staticmethod
+    def __conf_path():
+        return os.path.join(
+            os.environ.get('HOME'), '.config/msa'
+        )

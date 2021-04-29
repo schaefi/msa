@@ -1,0 +1,7 @@
+* database check if table exists
+* add logging
+* add exception handling
+* add man pages
+* add systemd unit for msa-store
+* update package
+* update README for install and use
