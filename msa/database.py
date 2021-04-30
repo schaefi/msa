@@ -21,12 +21,16 @@ from psycopg2.extras import RealDictCursor
 import psycopg2
 from textwrap import dedent
 from datetime import datetime
+from msa.exceptions import MSAConfigFileNotFoundError
 
 
 class MSADataBase:
     def __init__(self, config_file: str) -> None:
-        with open(config_file, 'r') as config:
-            self.db_config = yaml.safe_load(config)
+        try:
+            with open(config_file, 'r') as config:
+                self.db_config = yaml.safe_load(config)
+        except Exception as issue:
+            raise MSAConfigFileNotFoundError(issue)
         self.db_connection = psycopg2.connect(self.db_config['db_uri'])
         self.db_cursor = self.db_connection.cursor(
             cursor_factory=RealDictCursor

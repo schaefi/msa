@@ -1,13 +1,19 @@
 from mock import (
     Mock, patch
 )
+from pytest import raises
 from collections import namedtuple
 from msa.kafka import MSAKafka
+from msa.exceptions import MSAConfigFileNotFoundError
 
 
 class TestMSAKafka:
     def setup(self):
         self.kafka = MSAKafka('../data/kafka.yml')
+
+    def test_config_file_not_found(self):
+        with raises(MSAConfigFileNotFoundError):
+            MSAKafka('../data/foo')
 
     @patch('msa.kafka.KafkaProducer')
     def test_send(self, mock_KafkaProducer):

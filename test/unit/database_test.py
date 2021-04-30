@@ -1,8 +1,10 @@
 from mock import (
     Mock, patch
 )
+from pytest import raises
 from textwrap import dedent
 from msa.database import MSADataBase
+from msa.exceptions import MSAConfigFileNotFoundError
 
 
 class TestMSADataBase:
@@ -11,6 +13,10 @@ class TestMSADataBase:
         self.db_connection = Mock()
         mock_psycopg2_connect.return_value = self.db_connection
         self.msa_db = MSADataBase('../data/db.yml')
+
+    def test_config_file_not_found(self):
+        with raises(MSAConfigFileNotFoundError):
+            MSADataBase('../data/foo')
 
     def test_delete_table(self):
         self.msa_db.delete_table()
