@@ -97,5 +97,6 @@ make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ install
 %{_defaultdocdir}/python-msa/README
 %{_bindir}/msa-lookup
 %{_bindir}/msa-store
+%{_bindir}/msa-init
 
 %changelog

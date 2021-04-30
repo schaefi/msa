@@ -9,7 +9,7 @@ docopt
 PyYAML
 
 # Access to postgresql
-psycopg2
+psycopg2-binary
 
 # Access to kafka
 kafka-python
