@@ -70,6 +70,7 @@ class MSAKafka:
         return metrics_list
 
     def __create_ssl_broker(self) -> KafkaProducer:
+        # TODO: try block
         return KafkaProducer(
             security_protocol='SSL',
             bootstrap_servers=self.kafka_host,
@@ -81,6 +82,7 @@ class MSAKafka:
     def __create_ssl_consumer(
         self, client='msa-client', group='msa-group'
     ) -> KafkaConsumer:
+        # TODO: try block
         return KafkaConsumer(
             self.kafka_topic,
             auto_offset_reset='earliest',

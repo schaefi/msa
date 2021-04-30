@@ -31,6 +31,7 @@ class MSADataBase:
                 self.db_config = yaml.safe_load(config)
         except Exception as issue:
             raise MSAConfigFileNotFoundError(issue)
+        # TODO: try block
         self.db_connection = psycopg2.connect(self.db_config['db_uri'])
         self.db_cursor = self.db_connection.cursor(
             cursor_factory=RealDictCursor
@@ -82,5 +83,6 @@ class MSADataBase:
         self.__execute_and_commit(insert_into_webcheck)
 
     def __execute_and_commit(self, query):
+        # TODO: try block
         self.db_cursor.execute(query)
         self.db_connection.commit()

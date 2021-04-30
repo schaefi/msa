@@ -81,6 +81,7 @@ def store_to_database(messages: List, db: MSADataBase):
     for message in messages:
         log.info('Writing message to database...')
         log.info(f'--> {message}')
+        # TODO: try block
         db.insert(
             message.get('page'), message.get('date'),
             message.get('status'), message.get('rtime'),
