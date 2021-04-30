@@ -103,6 +103,7 @@ install -m 755 systemd/msa-store.service %{buildroot}/usr/lib/systemd/user
 %{python3_sitelib}/msa*
 %{_defaultdocdir}/python-msa/LICENSE
 %{_defaultdocdir}/python-msa/README
+%doc %{_mandir}/man8/*
 %{_bindir}/msa-lookup
 %{_bindir}/msa-store
 %{_bindir}/msa-init

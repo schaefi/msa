@@ -21,6 +21,9 @@ usage: msa-lookup -h | --help
            [--regexp=<expression>]
 
 options:
+    --page=<uri>
+        Web URI
+
     --regexp=<expression>
         Optional expression to match against the page content.
 """
