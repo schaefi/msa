@@ -3,9 +3,12 @@ omit =
     */version.py
     */msa_store.py
     */msa_lookup.py
+    */msa_init.py
+
 
 [report]
 omit =
     */version.py
     */msa_store.py
     */msa_lookup.py
+    */msa_init.py

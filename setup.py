@@ -22,7 +22,7 @@ config = {
     'license' : 'GPLv3+',
     'install_requires': [
         'docopt',
-        'psycopg2',
+        'psycopg2-binary',
         'kafka-python',
         'requests'
     ],
@@ -30,7 +30,8 @@ config = {
     'entry_points': {
         'console_scripts': [
             'msa-lookup=msa.msa_lookup:main',
-            'msa-store=msa.msa_store:main'
+            'msa-store=msa.msa_store:main',
+            'msa-init=msa.msa_init:main'
         ]
     },
     'include_package_data': True,
