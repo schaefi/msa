@@ -19,49 +19,68 @@
 usage: msa-store -h | --help
        msa-store
            [--update-interval=<time_sec>]
-           [--foreground]
+           [--single-shot]
        msa-store --dump-db
 
 options:
     --dump-db
         Print the database
 
-    --foreground
-        Optional stay in the foreground, blocking the terminal.
-        Default is in background mode
+    --single-shot
+        Optionally run once, read present messages and store them
+        in the database.
 
     --update-interval=<time_sec>
         Optional update interval to check for messages and
         writing into the database. Default is 30sec
 """
+from typing import List
 from docopt import docopt
 from msa.version import __version__
 from msa.kafka import MSAKafka
-# from msa.database import MSADataBase
+from msa.database import MSADataBase
 from msa.defaults import Defaults
+from msa.logger import MSALogger
+
+log = MSALogger.get_logger()
 
 
-def main():
+def main() -> None:
     args = docopt(
         __doc__,
         version='MSA (store) version ' + __version__,
         options_first=True
     )
 
-    # db = MSADataBase(
-    #     config_file=Defaults.get_db_config()
-    # )
+    db = MSADataBase(
+        config_file=Defaults.get_db_config()
+    )
 
     if args['--dump-db']:
-        # TODO: print the database, SELECT * from webcheck
-        # needs to be implemented in the database code
-        pass
+        for entry in db.dump_table():
+            log.info(entry)
+        return
 
     kafka = MSAKafka(
         config_file=Defaults.get_kafka_config()
     )
 
-    print(kafka.read())
+    if args['--single-shot']:
+        store_to_database(kafka.read(), db)
+        return
+
+    # print(kafka.read())
     # TODO: implement interval timer,
     # store the information in the database,
     # fork as a daemon
+
+
+def store_to_database(messages: List, db: MSADataBase):
+    for message in messages:
+        log.info('Writing message to database...')
+        log.info(f'--> {message}')
+        db.insert(
+            message.get('page'), message.get('date'),
+            message.get('status'), message.get('rtime'),
+            message.get('tag')
+        )

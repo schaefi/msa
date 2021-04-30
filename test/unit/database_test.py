@@ -33,6 +33,12 @@ class TestMSADataBase:
             create_table_webcheck
         )
 
+    def test_dump_table(self):
+        self.msa_db.dump_table()
+        self.msa_db.db_cursor.execute.assert_called_once_with(
+            'SELECT * FROM webcheck'
+        )
+
     def test_insert_table(self):
         # test on insert with NULL type tag
         self.msa_db.insert(

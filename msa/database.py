@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with MSA.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import List
 import yaml
 from psycopg2.extras import RealDictCursor
 import psycopg2
@@ -49,9 +50,16 @@ class MSADataBase:
         ''').strip()
         self.__execute_and_commit(create_table_webcheck)
 
+    def dump_table(self) -> List:
+        dump_table_webcheck = dedent('''
+            SELECT * FROM webcheck
+        ''').strip()
+        self.db_cursor.execute(dump_table_webcheck)
+        return self.db_cursor.fetchall()
+
     def insert(
         self, url: str, date: str, status_code: int,
-        response_time: float, flag: str = None
+        response_time: float, tag: str = None
     ) -> None:
         request_date = datetime.strptime(
             date, '%Y-%m-%dT%H:%M:%S+00:00'
@@ -65,7 +73,7 @@ class MSADataBase:
             request_date,
             status_code,
             response_time,
-            f'\'{flag}\'' if flag else 'NULL'
+            f'\'{tag}\'' if tag else 'NULL'
         ).strip()
         self.__execute_and_commit(insert_into_webcheck)
 

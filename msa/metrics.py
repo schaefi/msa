@@ -17,6 +17,7 @@
 #
 from datetime import datetime
 from typing import Optional
+from msa.logger import MSALogger
 import requests
 import re
 
@@ -25,26 +26,38 @@ class MSAMetrics:
     def __init__(
         self, url: str, matches: str = '', timeout: int = 30
     ) -> None:
+        log = MSALogger.get_logger()
         self.url = url
         self.expression = matches
-        self.response = requests.get(url, timeout=timeout)
         self.response_date = datetime.utcnow()
-        if self.expression:
+        self.response_content = b''
+        self.response_status_code = -1
+        self.response_elapsed_total_seconds = -1.0
+        try:
+            response = requests.get(url, timeout=timeout)
+            self.response_status_code = response.status_code
+            self.response_elapsed_total_seconds = \
+                response.elapsed.total_seconds()
+            self.response_content = response.content
+        except requests.exceptions.RequestException as issue:
+            log.error(f'Request failed with: {issue!r}')
+
+        if self.expression and self.response_content:
             self.content_matches_expression = bool(
-                re.match(f'{self.expression}', format(self.response.content))
+                re.match(f'{self.expression}', format(self.response_content))
             )
 
     def get_page(self) -> str:
         return self.url
 
     def get_status_code(self) -> int:
-        return self.response.status_code
+        return self.response_status_code
 
     def get_response_time(self) -> float:
         # NOTE: This is the time until we get the return header.
         # This is not the time which would include download of
         # the response content
-        return self.response.elapsed.total_seconds()
+        return self.response_elapsed_total_seconds
 
     def get_response_date(self) -> str:
         return self.response_date.strftime(

@@ -37,14 +37,15 @@ from msa.database import MSADataBase
 from msa.defaults import Defaults
 from msa.logger import MSALogger
 
+log = MSALogger.get_logger()
 
-def main():
+
+def main() -> None:
     args = docopt(
         __doc__,
         version='MSA (lookup) version ' + __version__,
         options_first=True
     )
-    log = MSALogger.get_logger()
     if args['--verbose']:
         MSALogger.activate_global_info_logging()
 
