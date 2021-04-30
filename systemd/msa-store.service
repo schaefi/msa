@@ -1,0 +1,11 @@
+[Unit]
+Description=MSA Store Service
+After=syslog.target
+
+[Service]
+Type=simple
+Restart=on-failure
+ExecStart=/usr/bin/msa-store
+
+[Install]
+WantedBy=multi-user.target
