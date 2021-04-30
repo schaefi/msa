@@ -37,6 +37,7 @@ build: clean tox
 	# the dependencies to the python module rpm packages is
 	# managed in the spec file
 	sed -ie "s@>=[0-9.]*'@'@g" setup.py
+	sed -ie "s@psycopg2-binary@psycopg2@g" setup.py
 	# build the sdist source tarball
 	$(python) setup.py sdist
 	# restore original setup.py backed up from sed
