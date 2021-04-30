@@ -9,6 +9,7 @@ class TestMSALogger:
     @patch('msa.logger.logging')
     def test_get_logger(self, mock_logging):
         log = Mock()
+        log.hasHandlers.return_value = False
         mock_logging.getLogger.return_value = log
         MSALogger.get_logger()
         log.setLevel.assert_called_once_with(logging.INFO)

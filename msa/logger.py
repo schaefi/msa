@@ -22,10 +22,11 @@ class MSALogger:
     @staticmethod
     def get_logger(level=logging.INFO):
         log = logging.getLogger('msa')
-        log.setLevel(level)
-        channel = logging.StreamHandler()
-        channel.setLevel(level)
-        log.addHandler(channel)
+        if not log.hasHandlers():
+            log.setLevel(level)
+            channel = logging.StreamHandler()
+            channel.setLevel(level)
+            log.addHandler(channel)
         return log
 
     @staticmethod
