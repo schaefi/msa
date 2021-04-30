@@ -1,8 +1,4 @@
 * add logging
 * add exception handling where appropriate
   (db connection, kafka connection)
-* add man pages for msa-init, msa-lookup, msa-store
-* add systemd unit for msa-store
-* update package
-* update README for install and use
 * add docstrings in methods and classes

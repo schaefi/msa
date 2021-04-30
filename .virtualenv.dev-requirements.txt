@@ -30,3 +30,7 @@ mypy
 
 # for release
 twine
+
+# for building documentation
+sphinx
+sphinx_rtd_theme

@@ -13,6 +13,6 @@ include .virtualenv.dev-requirements.txt
 
 include .coverage*
 
-recursive-include test *.py
+recursive-include doc/build/man *
 
 global-exclude *.py[cod] __pycache__
