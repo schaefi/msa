@@ -19,19 +19,23 @@
 usage: msa-init -h | --help
        msa-init
            [--init-db]
+           [--verbose]
 
 options:
     --init-db
         Optional init the database. Note, this will drop the
         eventually existing table
+
+    --verbose
+        Include log information from external modules
 """
-import logging
 from docopt import docopt
 from msa.version import __version__
 from msa.metrics import MSAMetrics
 from msa.kafka import MSAKafka
 from msa.database import MSADataBase
 from msa.defaults import Defaults
+from msa.logger import MSALogger
 
 
 def main():
@@ -40,21 +44,31 @@ def main():
         version='MSA (lookup) version ' + __version__,
         options_first=True
     )
+    log = MSALogger.get_logger()
+    if args['--verbose']:
+        MSALogger.activate_global_info_logging()
+
     # add setup of kafka and database services here
     # ...
 
     # check kafka connectivity
+    log.info('Connecting to Kafka...')
     metrics = MSAMetrics(url='https://www.google.de')
     kafka = MSAKafka(
         config_file=Defaults.get_kafka_config()
     )
+    log.info('--> Sending/Receiving Google metrics for testing...')
     kafka.send(metrics)
-    logging.info(kafka.read())
+    log.info(f'--> {kafka.read()}')
+    log.info('OK')
 
     # check database connectivity
+    log.info('Connecting to PostgreSQL...')
     db = MSADataBase(
         config_file=Defaults.get_db_config()
     )
     if args['--init-db']:
+        log.info('--> Recreate DB table setup')
         db.delete_table()
         db.create_table()
+    log.info('OK')
