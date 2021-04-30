@@ -59,6 +59,10 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  python%{python3_pkgversion}-%{develsuffix}
 BuildRequires:  python%{python3_pkgversion}-setuptools
 BuildRequires:  fdupes
+%if 0%{?suse_version} >= 1210
+BuildRequires:  systemd-rpm-macros
+%{?systemd_requires}
+%endif
 BuildArch:      noarch
 
 %description
@@ -90,6 +94,10 @@ python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--ins
 # Install documentation
 make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ install
 
+# Install systemd services
+mkdir -p %{buildroot}/usr/lib/systemd/user
+install -m 755 systemd/msa-store.service %{buildroot}/usr/lib/systemd/user
+
 %files -n python%{python3_pkgversion}-msa
 %dir %{_defaultdocdir}/python-msa
 %{python3_sitelib}/msa*
@@ -98,5 +106,6 @@ make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ install
 %{_bindir}/msa-lookup
 %{_bindir}/msa-store
 %{_bindir}/msa-init
+/usr/lib/systemd/user/msa-store.service
 
 %changelog

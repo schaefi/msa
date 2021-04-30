@@ -1,5 +1,6 @@
 # Manifest describing source package contents
 
+graft systemd
 graft package
 
 include Makefile
