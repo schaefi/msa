@@ -4,6 +4,8 @@ from mock import (
     Mock, patch, MagicMock
 )
 
+from requests.exceptions import RequestException
+
 
 class TestMSAMetrics:
     @patch('requests.get')
@@ -25,13 +27,19 @@ class TestMSAMetrics:
             url='https://smart', matches='XXX'
         )
 
+    @patch('requests.get')
+    def test_request_failed(self, mock_request_get):
+        mock_request_get.side_effect = RequestException
+        metrics = MSAMetrics(url='bogus')
+        assert metrics.get_status_code() == -1
+
     def test_get_status_code(self):
         assert self.metrics_simple.get_status_code() == \
-            self.response.status_code
+            self.metrics_simple.response_status_code
 
     def test_get_response_time(self):
         assert self.metrics_simple.get_response_time() == \
-            self.response.elapsed.total_seconds.return_value
+            self.metrics_simple.response_elapsed_total_seconds
 
     def test_get_response_date(self):
         assert self.metrics_simple.get_response_date() == \

@@ -31,7 +31,7 @@ from msa.kafka import MSAKafka
 from msa.defaults import Defaults
 
 
-def main():
+def main() -> None:
     args = docopt(
         __doc__,
         version='MSA (lookup) version ' + __version__,
