@@ -4,6 +4,7 @@ omit =
     */msa_store.py
     */msa_lookup.py
     */msa_init.py
+    */exceptions.py
 
 
 [report]
@@ -12,3 +13,4 @@ omit =
     */msa_store.py
     */msa_lookup.py
     */msa_init.py
+    */exceptions.py

@@ -36,10 +36,12 @@ from msa.kafka import MSAKafka
 from msa.database import MSADataBase
 from msa.defaults import Defaults
 from msa.logger import MSALogger
+from msa.exceptions import exception_handler
 
 log = MSALogger.get_logger()
 
 
+@exception_handler
 def main() -> None:
     args = docopt(
         __doc__,

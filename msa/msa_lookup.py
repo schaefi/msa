@@ -29,8 +29,10 @@ from msa.version import __version__
 from msa.metrics import MSAMetrics
 from msa.kafka import MSAKafka
 from msa.defaults import Defaults
+from msa.exceptions import exception_handler
 
 
+@exception_handler
 def main() -> None:
     args = docopt(
         __doc__,

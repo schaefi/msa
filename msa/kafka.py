@@ -20,12 +20,16 @@ import yaml
 from kafka import KafkaConsumer
 from kafka import KafkaProducer
 from msa.metrics import MSAMetrics
+from msa.exceptions import MSAConfigFileNotFoundError
 
 
 class MSAKafka:
     def __init__(self, config_file: str) -> None:
-        with open(config_file, 'r') as config:
-            self.kafka_config = yaml.safe_load(config)
+        try:
+            with open(config_file, 'r') as config:
+                self.kafka_config = yaml.safe_load(config)
+        except Exception as issue:
+            raise MSAConfigFileNotFoundError(issue)
         self.kafka_host = self.kafka_config['host']
         self.kafka_topic = self.kafka_config['topic']
         self.kafka_ca = self.kafka_config['ssl_cafile']
