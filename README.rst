@@ -8,19 +8,21 @@ MSA - Web Check
 
 Web Check, monitor page metrics
 
+Installation
+------------
 
-Prepare from Source
--------------------
+MSA is provided as packages from here:
 
-To prepare the system to run from a virtual python
-environment, follow these steps:
+* https://build.opensuse.org/package/show/home:sax2/python-msa
+
+Please choose the OS of your choice and install the package.
+For the SUSE OS and with Leap 15.2 this can be done as follows:
+
 
 .. code:: shell-session
 
-   $ cd ~/
-   $ git clone https://github.com/schaefi/msa.git
-   $ pip install tox
-   $ tox
+   $ sudo zypper ar https://download.opensuse.org/repositories/home:/sax2/openSUSE_Leap_15.2/
+   $ sudo zypper in python3-msa
 
 
 Setup Service Configurations
@@ -64,6 +66,25 @@ For accessing the kafka service create:
    Please checkout your service provider console to fetch
    the needed access credentials
 
+Check and Initialize Services
+-----------------------------
+
+For MSA to work correctly a kafka and a PostgreSQL service are required.
+Make sure you have created the `topic-name` configured
+in `~/.config/msa/kafka.yml` on the kafka admin console. The MSA
+init process currently does not create the kafka topic. For the
+database to work correctly an initial table layout is required.
+The MSA init process creates this table layout and checks the
+connectivity to all services with the following call:
+
+.. code:: shell-session
+
+   $ msa-init --init-db
+
+.. note::
+
+   Calling msa-init with --init-db creates a table named webcheck
+   and will drop that table prior creating a new one !
 
 Start Web Checker(s)
 --------------------
@@ -75,12 +96,52 @@ crontab. This can be done as follows:
 
    $ crontab -e
 
-   */5 * * * * $HOME/msa/run msa-lookup --page https://www.google.de
+   * * * * * msa-lookup --page https://www.google.de
 
-Will run a web check for Google every 5 minutes. Add more
+Will run a web check for Google every minute. Add more
 checkers as you see fit
 
 Start Database Store
 --------------------
 
-TODO
+The collection of web checkers through `msa-lookup` causes the
+creation of a collection of messages in the kafka service. With
+the `msa-store` utility those messages can be stored in the
+PostgreSQL database. To start the service call
+
+.. code:: shell-session
+
+   $ systemctl --user start msa-store
+
+As messages are arriving in the database you can dump its
+contents with:
+
+.. code:: shell-session
+
+   $ ms-store --dump-db
+
+Run from Source
+---------------
+
+To prepare the system to run from a virtual python
+environment, follow these steps:
+
+.. code:: shell-session
+
+   $ cd ~/
+   $ git clone https://github.com/schaefi/msa.git
+   $ pip install tox
+   $ tox
+
+.. note:: Calling from Python Venv
+
+   Calling python code from within a virtual environment
+   requires this environment be active in the calling
+   console session. For this purpose a simple helper
+   programm named `run` exists. Thus if you plan to
+   work from source please always call the tools through
+   the run helper like in the following example:
+
+   .. code:: shell-session
+
+      $HOME/msa/run msa-init
