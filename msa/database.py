@@ -29,7 +29,22 @@ from msa.exceptions import (
 
 
 class MSADataBase:
+    """
+    Implements PostgreSQL database handling
+    """
     def __init__(self, config_file: str) -> None:
+        """
+        Create new instance of MSADataBase
+
+        At creation time the connection to the database
+        is established
+
+        :param str config_file: DB credentials file
+
+            .. code:: yaml
+
+                db_uri: postgres://...
+        """
         try:
             with open(config_file, 'r') as config:
                 self.db_config = yaml.safe_load(config)
@@ -46,12 +61,27 @@ class MSADataBase:
             )
 
     def delete_table(self) -> None:
+        """
+        Delete Table: webcheck
+        """
         delete_table_webcheck = dedent('''
             DROP TABLE webcheck
         ''').strip()
         self.__execute(delete_table_webcheck)
 
     def create_table(self) -> None:
+        """
+        Create table: webcheck
+
+        ID | PAGE | DATE | STATUS | RTIME | TAG
+
+        * ID: Self generated entry id
+        * PAGE: Web page URI
+        * DATE: Date
+        * STATUS: Request status code
+        * RTIME: Request response time
+        * TAG: Free form tag data associated with request content
+        """
         create_table_webcheck = dedent('''
             CREATE TABLE webcheck
             (ID INT GENERATED ALWAYS AS IDENTITY,
@@ -64,6 +94,13 @@ class MSADataBase:
         self.__execute(create_table_webcheck)
 
     def dump_table(self) -> List:
+        """
+        Select from webcheck and returns the table contents
+
+        :return: Returns a list of RealDictRow entries
+
+        :rtype: list
+        """
         dump_table_webcheck = dedent('''
             SELECT * FROM webcheck
         ''').strip()
@@ -74,6 +111,15 @@ class MSADataBase:
         self, url: str, date: str, status_code: int,
         response_time: float, tag: str = None
     ) -> None:
+        """
+        Insert into webcheck
+
+        :param str url: Web page URI
+        :param str date: date of the format: %Y-%m-%dT%H:%M:%S+00:00
+        :param int status_code: request status code
+        :param float response_time: request response time
+        :param str tag: free form tag data associated with request content
+        """
         request_date = datetime.strptime(
             date, '%Y-%m-%dT%H:%M:%S+00:00'
         )
@@ -91,6 +137,12 @@ class MSADataBase:
         self.__execute(insert_into_webcheck)
 
     def __execute(self, query: str, commit: bool = True) -> None:
+        """
+        Execute and optionally commit a given query
+
+        :param str query: SQL query
+        :param bool commit: For write actions, commit into DB
+        """
         try:
             self.db_cursor.execute(query)
             if commit:

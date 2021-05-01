@@ -32,7 +32,29 @@ from msa.exceptions import (
 
 
 class MSAKafka:
+    """
+    Implements Kafka message handling in the context of MSA
+
+    Messages send by an instance of MSAKafka uses a
+    a transport_schema which matches the information provided
+    by data from MSAMetrics. Reading of messages via
+    MSAKafka validates the data against the
+    transport_schema.
+    """
     def __init__(self, config_file: str) -> None:
+        """
+        Create a new instance of MSAKafka
+
+        :param str config_file: DB credentials file
+
+            .. code:: yaml
+
+                host: kafka-example.com:12345
+                topic: ms-intro
+                ssl_cafile: ca.pem
+                ssl_certfile: service.cert
+                ssl_keyfile: service.key
+        """
         try:
             with open(config_file, 'r') as config:
                 self.kafka_config = yaml.safe_load(config)
@@ -45,6 +67,13 @@ class MSAKafka:
         self.kafka_key = self.kafka_config['ssl_keyfile']
 
     def send(self, metrics: MSAMetrics) -> None:
+        """
+        Send a message conforming to the transport_schema to kafka
+        The information for the message is taken from an instance
+        of MSAMetrics
+
+        :param MSAMetrics metrics: Instance of MSAMetrics
+        """
         message_broker = self.__create_ssl_broker()
         metrics_dict = {
             'page': metrics.get_page(),
@@ -60,6 +89,17 @@ class MSAKafka:
         message_broker.flush()
 
     def read(self, timeout_ms=1000) -> List:
+        """
+        Read messages from kafka. Each message has to be valid
+        YAML and has to follow the transport_schema in order to
+        be processed in the context of the MSA project
+
+        :param int timeout_ms: read timeout in ms
+
+        :return: list of dicts from yaml.safe_load
+
+        :rtype: list
+        """
         metrics_list = []
         message_consumer = self.__create_ssl_consumer()
         # Call poll twice. First call will just assign partitions
@@ -92,6 +132,11 @@ class MSAKafka:
         return metrics_list
 
     def __create_ssl_broker(self) -> KafkaProducer:
+        """
+        Create a KafkaProducer
+
+        :rtype: KafkaProducer
+        """
         try:
             return KafkaProducer(
                 security_protocol='SSL',
@@ -108,6 +153,11 @@ class MSAKafka:
     def __create_ssl_consumer(
         self, client='msa-client', group='msa-group'
     ) -> KafkaConsumer:
+        """
+        Create a KafkaConsumer
+
+        :rtype: KafkaConsumer
+        """
         try:
             return KafkaConsumer(
                 self.kafka_topic,

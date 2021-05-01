@@ -16,11 +16,28 @@
 # along with MSA.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
+from logging import Logger
 
 
 class MSALogger:
+    """
+    Implements the "msa" logger
+    """
     @staticmethod
-    def get_logger(level=logging.INFO):
+    def get_logger(level: int = logging.INFO) -> Logger:
+        """
+        Configure "msa" logger
+
+        Simple logger responding to logging.INFO level by default
+        The logger is only created once, thus multiple get_logger()
+        calls are allowed
+
+        :param int level: log level
+
+        :return: log handler
+
+        :rtype: Logger
+        """
         log = logging.getLogger('msa')
         if not log.hasHandlers():
             log.setLevel(level)
@@ -30,5 +47,12 @@ class MSALogger:
         return log
 
     @staticmethod
-    def activate_global_info_logging():
+    def activate_global_info_logging() -> None:
+        """
+        Configure applicaton global log level
+
+        Sets the global log level to logging.INFO. This causes
+        all modules, also outside of the msa scope, to show
+        their info logs
+        """
         logging.basicConfig(level=logging.INFO)

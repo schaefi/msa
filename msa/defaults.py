@@ -19,16 +19,40 @@ import os
 
 
 class Defaults:
+    """
+    Implements MSA project default values
+    """
     @staticmethod
-    def get_db_config():
+    def get_db_config() -> str:
+        """
+        Location of database access credentials
+
+        :return: A file path
+
+        :rtype: str
+        """
         return os.path.join(Defaults.__conf_path(), 'db.yml')
 
     @staticmethod
-    def get_kafka_config():
+    def get_kafka_config() -> str:
+        """
+        Location of kafka access credentials
+
+        :return: A file path
+
+        :rtype: str
+        """
         return os.path.join(Defaults.__conf_path(), 'kafka.yml')
 
     @staticmethod
-    def __conf_path():
+    def __conf_path() -> str:
+        """
+        Base directory of config files for MSA
+
+        :return: A directory path
+
+        :rtype: str
+        """
         return os.path.join(
-            os.environ.get('HOME'), '.config/msa'
+            os.environ.get('HOME') or '', '.config/msa'
         )

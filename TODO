@@ -1,4 +1,0 @@
-* add logging
-* add exception handling where appropriate
-  (db connection, kafka connection)
-* add docstrings in methods and classes
