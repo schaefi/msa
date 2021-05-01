@@ -10,8 +10,13 @@ def exception_handler(func: Callable) -> Callable:
     """
     Decorator method to add exception handling
     Methods marked with this decorator are called under
-
     control of the MSA exceptions
+
+    :param Callable func: Function pointer
+
+    :return: func, wrapped with exception handling
+
+    :rtype: Callable
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -36,16 +41,26 @@ def exception_handler(func: Callable) -> Callable:
 
 class MSAError(Exception):
     """
-    **Base class to handle all known exceptions**
+    Base class to handle all known exceptions
 
     Specific exceptions are implemented as sub classes of MSAError
-
-    :param str message: Exception message text
     """
     def __init__(self, message) -> None:
+        """
+        Store exception message
+
+        :param str message: Exception message text
+        """
         self.message = message
 
     def __str__(self) -> str:
+        """
+        Return representation of exception message
+
+        :return: A message
+
+        :rtype: str
+        """
         return format(self.message)
 
 
