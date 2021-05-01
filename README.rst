@@ -6,7 +6,27 @@ MSA - Web Check
 
 |GitHub CI Action|
 
-Web Check, monitor page metrics
+Web Check, monitor page metrics.
+
+MSA consists out of three tools:
+
+`msa-init`
+  A tool to initialize and setup the database and kafka services
+  used by the following tools. `msa-init` is expected to be called once
+
+`msa-lookup`
+  A tool to fetch request metrics from a web page. The collected
+  information contains; The page URL, date, response time, status code
+  and an optional information on the match result of a regexp applied
+  to the request content. The data is stored as a message to a kafka
+  service. `msa-lookup` is expected to be called often and for
+  different locations.
+ 
+`msa-store`
+  A tool to read the messages from the kafka service written by `msa-lookup`
+  and to store them in a PostgreSQL database. `msa-store` is expected
+  to be called as a service through systemd but can also be used in
+  single shot mode.
 
 Installation
 ------------
@@ -28,10 +48,9 @@ For the SUSE OS and with Leap 15.2 this can be done as follows:
 Setup Service Configurations
 ----------------------------
 
-MSA sends metrics to a kafka message broker and stores this
-information in a PostgreSQL database. Therefore two config
+MSA utilizes kafka and PostgreSQL services. Therefore two config
 files including the access credentials to these services needs
-to be created as follows
+to be created as follows:
 
 .. code:: shell-session
 
@@ -69,12 +88,20 @@ For accessing the kafka service create:
 Check and Initialize Services
 -----------------------------
 
-For MSA to work correctly a kafka and a PostgreSQL service are required.
-Make sure you have created the `topic-name` configured
-in `~/.config/msa/kafka.yml` on the kafka admin console. The MSA
-init process currently does not create the kafka topic. For the
-database to work correctly an initial table layout is required.
-The MSA init process creates this table layout and checks the
+For MSA to work correctly kafka and PostgreSQL services are required.
+
+Before calling the `msa-init` setup, check on the following pre conditions:
+
+1. Start a kafka service
+2. Start a PostgreSQL service
+3. Make sure you have created the `topic-name` configured
+   in `~/.config/msa/kafka.yml` on the kafka admin console.
+
+The MSA init process currently does not create the services and the
+kafka topic. Thus the above steps MUST be done manually.
+
+For the database to work correctly an initial table layout is required.
+The MSA init process creates this table layout and also checks the
 connectivity to all services with the following call:
 
 .. code:: shell-session
