@@ -1,6 +1,9 @@
 name: IntegrationTesting
 
-on: [push]
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   ontarget:
