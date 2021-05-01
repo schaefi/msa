@@ -20,6 +20,8 @@ usage: msa-store -h | --help
        msa-store
            [--update-interval=<time_sec>]
            [--single-shot]
+           [--log-file=<logfile>]
+           [--verbose]
        msa-store --dump-db
 
 options:
@@ -33,7 +35,14 @@ options:
     --update-interval=<time_sec>
         Optional update interval to check for messages and
         writing into the database. Default is 30sec
+
+    --log-file=<logfile>
+        Optional log file setup
+
+    --verbose
+        Include log information from external modules
 """
+from apscheduler.schedulers.background import BlockingScheduler
 from typing import List
 from docopt import docopt
 from msa.version import __version__
@@ -53,28 +62,37 @@ def main() -> None:
         version='MSA (store) version ' + __version__,
         options_first=True
     )
+    if args['--verbose']:
+        MSALogger.activate_global_info_logging()
+    if args['--log-file']:
+        MSALogger.set_logfile(args['--log-file'])
 
+    log.info('Opening database connection...')
     db = MSADataBase(
         config_file=Defaults.get_db_config()
     )
 
     if args['--dump-db']:
+        log.info('Database has the following entries:')
         for entry in db.dump_table():
             log.info(entry)
         return
 
+    log.info('Opening kafka messaging...')
     kafka = MSAKafka(
         config_file=Defaults.get_kafka_config()
     )
 
+    store_to_database(kafka.read(), db)
     if args['--single-shot']:
-        store_to_database(kafka.read(), db)
         return
 
-    # print(kafka.read())
-    # TODO: implement interval timer,
-    # store the information in the database,
-    # fork as a daemon
+    db_scheduler = BlockingScheduler()
+    db_scheduler.add_job(
+        lambda: store_to_database(kafka.read(), db),
+        'interval', seconds=args['--update-interval'] or 30
+    )
+    db_scheduler.start()
 
 
 def store_to_database(messages: List, db: MSADataBase):

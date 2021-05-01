@@ -10,6 +10,8 @@ SYNOPSIS
    msa-store
        [--update-interval=<time_sec>]
        [--single-shot]
+       [--log-file=<logfile>]
+       [--verbose]
    msa-store --dump-db
 
 DESCRIPTION
@@ -28,15 +30,23 @@ OPTIONS
 
   Print the database
 
+--single-shot
+
+  Optionally run once, read present messages and store them
+  in the database.
+
 --update-interval=<time_sec>
 
   Optional update interval to check for messages and
   writing into the database. Default is 30sec
 
---single-shot
+--log-file=<logfile>
 
-  Optionally run once, read present messages and store them
-  in the database.
+  Optional log file setup
+
+--verbose
+
+  Include log information from external modules
 
 EXAMPLE
 -------
