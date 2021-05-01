@@ -22,5 +22,5 @@ jobs:
         python -m pip install tox
     - name: Prepare
       run: |
-        base64 --decode ${{ secrets.AIVEN_SERVICE }} | tar -C ${{ HOME }} -xz
+        base64 --decode ${{ secrets.AIVEN_SERVICE }} | tar -C $HOME -xz
         ./run msa-init
