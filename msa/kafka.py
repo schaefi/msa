@@ -15,15 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with MSA.  If not, see <http://www.gnu.org/licenses/>
 #
+from cerberus import Validator
 from typing import List
 import yaml
 from kafka import KafkaConsumer
 from kafka import KafkaProducer
 from msa.metrics import MSAMetrics
+from msa.transport_schema import transport_schema
 from msa.exceptions import (
     MSAConfigFileNotFoundError,
     MSAKafkaProducerException,
     MSAKafkaConsumerException,
+    MSAKafkaTransportSchemaException,
     MSAYamlLoadException
 )
 
@@ -67,13 +70,22 @@ class MSAKafka:
             for topic_partition, message_list in raw_messages.items():
                 for message in message_list:
                     try:
-                        metrics_list.append(
-                            yaml.safe_load(message.value)
-                        )
+                        message_as_yaml = yaml.safe_load(message.value)
                     except Exception as issue:
                         raise MSAYamlLoadException(
-                            f'YAML load of kafka data failed with: {issue!r}'
+                            f'YAML load for {message!r} failed with: {issue!r}'
                         )
+                    validator = Validator(transport_schema)
+                    validator.validate(
+                        message_as_yaml, transport_schema
+                    )
+                    if validator.errors:
+                        raise MSAKafkaTransportSchemaException(
+                            'Validation for "{0}" failed with: {1}'.format(
+                                message_as_yaml, validator.errors
+                            )
+                        )
+                    metrics_list.append(message_as_yaml)
         # Acknowledge message so we don't get it again for
         # this client/group
         message_consumer.commit()

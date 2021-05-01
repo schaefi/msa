@@ -8,6 +8,7 @@ from msa.exceptions import (
     MSAConfigFileNotFoundError,
     MSAKafkaProducerException,
     MSAKafkaConsumerException,
+    MSAKafkaTransportSchemaException,
     MSAYamlLoadException
 )
 
@@ -65,6 +66,7 @@ class TestMSAKafka:
         )
 
         # Simulate poll structure from KafkaConsumer
+        # Message includes invalid YAML
         poll_data = [
             {
                 'topic_partition': [
@@ -84,6 +86,33 @@ class TestMSAKafka:
             self.kafka.read()
 
     @patch('msa.kafka.KafkaConsumer')
+    def test_read_invalid_for_transport_schema(self, mock_KafkaConsumer):
+        message_consumer = Mock()
+        message_type = namedtuple(
+            'message_type', ['value']
+        )
+
+        # Simulate poll structure from KafkaConsumer
+        # Message includes valid yaml but invalid schema
+        poll_data = [
+            {
+                'topic_partition': [
+                    message_type(value=b'page: http://example.com')
+                ]
+            },
+            {}
+        ]
+
+        def poll(timeout_ms):
+            return poll_data.pop()
+
+        message_consumer.poll.side_effect = poll
+        mock_KafkaConsumer.return_value = message_consumer
+
+        with raises(MSAKafkaTransportSchemaException):
+            self.kafka.read()
+
+    @patch('msa.kafka.KafkaConsumer')
     def test_read(self, mock_KafkaConsumer):
         message_consumer = Mock()
         message_type = namedtuple(
@@ -91,10 +120,14 @@ class TestMSAKafka:
         )
 
         # Simulate poll structure from KafkaConsumer
+        # Message includes good data
         poll_data = [
             {
                 'topic_partition': [
-                    message_type(value=b'date: date\npage: http://example.com')
+                    message_type(
+                        value=b'page: http://example.com\n'
+                        b'date: date\nstatus: 42\nrtime: 42\ntag: tag'
+                    )
                 ]
             },
             {}
@@ -107,7 +140,13 @@ class TestMSAKafka:
         mock_KafkaConsumer.return_value = message_consumer
 
         assert self.kafka.read() == [
-            {'date': 'date', 'page': 'http://example.com'}
+            {
+                'page': 'http://example.com',
+                'date': 'date',
+                'status': 42,
+                'rtime': 42,
+                'tag': 'tag'
+            }
         ]
 
         mock_KafkaConsumer.assert_called_once_with(

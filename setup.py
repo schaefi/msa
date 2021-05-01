@@ -24,7 +24,8 @@ config = {
         'docopt',
         'psycopg2-binary',
         'kafka-python',
-        'requests'
+        'requests',
+        'cerberus'
     ],
     'packages': ['msa'],
     'entry_points': {
