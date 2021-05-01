@@ -126,13 +126,13 @@ class MSADataBase:
         insert_into_webcheck = dedent('''
             INSERT INTO webcheck
             (PAGE, DATE, STATUS, RTIME, TAG)
-            VALUES('{0}', '{1}', {2}, {3}, {4})
+            VALUES($${0}$$, '{1}', {2}, {3}, $${4}$$)
         ''').format(
             url,
             request_date,
             status_code,
             response_time,
-            f'\'{tag}\'' if tag else 'NULL'
+            tag if tag else 'NULL'
         ).strip()
         self.__execute(insert_into_webcheck)
 
@@ -149,5 +149,5 @@ class MSADataBase:
                 self.db_connection.commit()
         except Exception as issue:
             raise MSADatabaseQueryException(
-                f'Database transation failed with: {issue!r}'
+                f'Database transaction failed with: {issue!r}'
             )
