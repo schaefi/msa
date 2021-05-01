@@ -16,3 +16,6 @@ kafka-python
 
 # Transport schema
 cerberus
+
+# Daemon
+apscheduler

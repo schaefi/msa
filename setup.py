@@ -25,7 +25,8 @@ config = {
         'psycopg2-binary',
         'kafka-python',
         'requests',
-        'cerberus'
+        'cerberus',
+        'apscheduler'
     ],
     'packages': ['msa'],
     'entry_points': {

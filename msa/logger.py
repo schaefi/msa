@@ -16,6 +16,7 @@
 # along with MSA.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
+import sys
 from logging import Logger
 
 
@@ -30,7 +31,8 @@ class MSALogger:
 
         Simple logger responding to logging.INFO level by default
         The logger is only created once, thus multiple get_logger()
-        calls are allowed
+        calls are allowed but the only the very first call will
+        be effective on the level setting
 
         :param int level: log level
 
@@ -41,10 +43,18 @@ class MSALogger:
         log = logging.getLogger('msa')
         if not log.hasHandlers():
             log.setLevel(level)
-            channel = logging.StreamHandler()
+            channel = logging.StreamHandler(sys.stdout)
             channel.setLevel(level)
             log.addHandler(channel)
         return log
+
+    @staticmethod
+    def set_logfile(filename: str) -> None:
+        logfile = logging.FileHandler(
+            filename=filename, encoding='utf-8'
+        )
+        log = MSALogger.get_logger()
+        log.addHandler(logfile)
 
     @staticmethod
     def activate_global_info_logging() -> None:
