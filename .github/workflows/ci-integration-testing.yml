@@ -21,10 +21,10 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install tox
     - name: Prepare
-      - shell: bash
-        env:
-          AIVEN_SERVICE: ${{ secrets.AIVEN_SERVICE }}
-        run: |
-          echo "$AIVEN_SERVICE" > auth.b64
-          base64 --decode auth.b64 | tar -C $HOME -xz
-          ./run msa-init
+      shell: bash
+      env:
+        AIVEN_SERVICE: ${{ secrets.AIVEN_SERVICE }}
+      run: |
+        echo "$AIVEN_SERVICE" > auth.b64
+        base64 --decode auth.b64 | tar -C $HOME -xz
+        ./run msa-init
