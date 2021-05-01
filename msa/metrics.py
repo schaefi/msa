@@ -45,6 +45,7 @@ class MSAMetrics:
         self.response_content = b''
         self.response_status_code = -1
         self.response_elapsed_total_seconds = -1.0
+        self.content_matches_expression = False
         try:
             response = requests.get(url, timeout=timeout)
             self.response_status_code = response.status_code
