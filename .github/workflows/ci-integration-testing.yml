@@ -22,7 +22,7 @@ jobs:
         python -m pip install tox
     - name: Tox
       run: |
-        tox -e check
+        tox -e unit
     - name: MSA
       shell: bash
       env:
