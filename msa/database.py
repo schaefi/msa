@@ -21,7 +21,11 @@ from psycopg2.extras import RealDictCursor
 import psycopg2
 from textwrap import dedent
 from datetime import datetime
-from msa.exceptions import MSAConfigFileNotFoundError
+from msa.exceptions import (
+    MSAConfigFileNotFoundError,
+    MSADatabaseQueryException,
+    MSADatabaseConnectionException
+)
 
 
 class MSADataBase:
@@ -31,17 +35,21 @@ class MSADataBase:
                 self.db_config = yaml.safe_load(config)
         except Exception as issue:
             raise MSAConfigFileNotFoundError(issue)
-        # TODO: try block
-        self.db_connection = psycopg2.connect(self.db_config['db_uri'])
-        self.db_cursor = self.db_connection.cursor(
-            cursor_factory=RealDictCursor
-        )
+        try:
+            self.db_connection = psycopg2.connect(self.db_config['db_uri'])
+            self.db_cursor = self.db_connection.cursor(
+                cursor_factory=RealDictCursor
+            )
+        except Exception as issue:
+            raise MSADatabaseConnectionException(
+                f'Database connection failed with: {issue!r}'
+            )
 
     def delete_table(self) -> None:
         delete_table_webcheck = dedent('''
             DROP TABLE webcheck
         ''').strip()
-        self.__execute_and_commit(delete_table_webcheck)
+        self.__execute(delete_table_webcheck)
 
     def create_table(self) -> None:
         create_table_webcheck = dedent('''
@@ -53,13 +61,13 @@ class MSADataBase:
             RTIME    REAL        NOT NULL,
             TAG      TEXT)
         ''').strip()
-        self.__execute_and_commit(create_table_webcheck)
+        self.__execute(create_table_webcheck)
 
     def dump_table(self) -> List:
         dump_table_webcheck = dedent('''
             SELECT * FROM webcheck
         ''').strip()
-        self.db_cursor.execute(dump_table_webcheck)
+        self.__execute(dump_table_webcheck, commit=False)
         return self.db_cursor.fetchall()
 
     def insert(
@@ -80,9 +88,14 @@ class MSADataBase:
             response_time,
             f'\'{tag}\'' if tag else 'NULL'
         ).strip()
-        self.__execute_and_commit(insert_into_webcheck)
+        self.__execute(insert_into_webcheck)
 
-    def __execute_and_commit(self, query):
-        # TODO: try block
-        self.db_cursor.execute(query)
-        self.db_connection.commit()
+    def __execute(self, query: str, commit: bool = True) -> None:
+        try:
+            self.db_cursor.execute(query)
+            if commit:
+                self.db_connection.commit()
+        except Exception as issue:
+            raise MSADatabaseQueryException(
+                f'Database transation failed with: {issue!r}'
+            )

@@ -4,7 +4,12 @@ from mock import (
 from pytest import raises
 from collections import namedtuple
 from msa.kafka import MSAKafka
-from msa.exceptions import MSAConfigFileNotFoundError
+from msa.exceptions import (
+    MSAConfigFileNotFoundError,
+    MSAKafkaProducerException,
+    MSAKafkaConsumerException,
+    MSAYamlLoadException
+)
 
 
 class TestMSAKafka:
@@ -14,6 +19,18 @@ class TestMSAKafka:
     def test_config_file_not_found(self):
         with raises(MSAConfigFileNotFoundError):
             MSAKafka('../data/foo')
+
+    @patch('msa.kafka.KafkaConsumer')
+    def test_kafka_consumer_raises(self, mock_KafkaConsumer):
+        mock_KafkaConsumer.side_effect = Exception
+        with raises(MSAKafkaConsumerException):
+            self.kafka.read()
+
+    @patch('msa.kafka.KafkaProducer')
+    def test_kafka_producer_raises(self, mock_KafkaProducer):
+        mock_KafkaProducer.side_effect = Exception
+        with raises(MSAKafkaProducerException):
+            self.kafka.send(Mock())
 
     @patch('msa.kafka.KafkaProducer')
     def test_send(self, mock_KafkaProducer):
@@ -39,6 +56,32 @@ class TestMSAKafka:
             b'date: date\npage: http://example.com\nrtime: '
             b'time\nstatus: 42\ntag: null\n'
         )
+
+    @patch('msa.kafka.KafkaConsumer')
+    def test_read_invalid_yaml(self, mock_KafkaConsumer):
+        message_consumer = Mock()
+        message_type = namedtuple(
+            'message_type', ['value']
+        )
+
+        # Simulate poll structure from KafkaConsumer
+        poll_data = [
+            {
+                'topic_partition': [
+                    message_type(value=b'{this is invalid')
+                ]
+            },
+            {}
+        ]
+
+        def poll(timeout_ms):
+            return poll_data.pop()
+
+        message_consumer.poll.side_effect = poll
+        mock_KafkaConsumer.return_value = message_consumer
+
+        with raises(MSAYamlLoadException):
+            self.kafka.read()
 
     @patch('msa.kafka.KafkaConsumer')
     def test_read(self, mock_KafkaConsumer):

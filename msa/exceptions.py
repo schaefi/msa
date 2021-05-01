@@ -53,3 +53,44 @@ class MSAConfigFileNotFoundError(MSAError):
     """
     Exception raised if a config file could not be found
     """
+
+
+class MSAKafkaProducerException(MSAError):
+    """
+    Exception raised if an instance of KafkaProducer
+    returned an error
+    """
+
+
+class MSAKafkaConsumerException(MSAError):
+    """
+    Exception raised if an instance of KafkaConsumer
+    returned an error
+    """
+
+
+class MSADatabaseQueryException(MSAError):
+    """
+    Exception raised if on execution of a database query
+    an error occured
+    """
+
+
+class MSADatabaseConnectionException(MSAError):
+    """
+    Exception raised if the connection to the database failed
+    """
+
+
+class MSAMetricsInsertException(MSAError):
+    """
+    Exception raised if the insertion of the kafka read message
+    is not of the expected data type and format
+    """
+
+
+class MSAYamlLoadException(MSAError):
+    """
+    Exception raised if the YAML loading of data read from
+    the kafka topic failed
+    """

@@ -20,7 +20,12 @@ import yaml
 from kafka import KafkaConsumer
 from kafka import KafkaProducer
 from msa.metrics import MSAMetrics
-from msa.exceptions import MSAConfigFileNotFoundError
+from msa.exceptions import (
+    MSAConfigFileNotFoundError,
+    MSAKafkaProducerException,
+    MSAKafkaConsumerException,
+    MSAYamlLoadException
+)
 
 
 class MSAKafka:
@@ -61,36 +66,49 @@ class MSAKafka:
             raw_messages = message_consumer.poll(timeout_ms=timeout_ms)
             for topic_partition, message_list in raw_messages.items():
                 for message in message_list:
-                    metrics_list.append(
-                        yaml.safe_load(message.value)
-                    )
+                    try:
+                        metrics_list.append(
+                            yaml.safe_load(message.value)
+                        )
+                    except Exception as issue:
+                        raise MSAYamlLoadException(
+                            f'YAML load of kafka data failed with: {issue!r}'
+                        )
         # Acknowledge message so we don't get it again for
         # this client/group
         message_consumer.commit()
         return metrics_list
 
     def __create_ssl_broker(self) -> KafkaProducer:
-        # TODO: try block
-        return KafkaProducer(
-            security_protocol='SSL',
-            bootstrap_servers=self.kafka_host,
-            ssl_cafile=self.kafka_ca,
-            ssl_certfile=self.kafka_cert,
-            ssl_keyfile=self.kafka_key
-        )
+        try:
+            return KafkaProducer(
+                security_protocol='SSL',
+                bootstrap_servers=self.kafka_host,
+                ssl_cafile=self.kafka_ca,
+                ssl_certfile=self.kafka_cert,
+                ssl_keyfile=self.kafka_key
+            )
+        except Exception as issue:
+            raise MSAKafkaProducerException(
+                f'Creating kafka producer failed with: {issue!r}'
+            )
 
     def __create_ssl_consumer(
         self, client='msa-client', group='msa-group'
     ) -> KafkaConsumer:
-        # TODO: try block
-        return KafkaConsumer(
-            self.kafka_topic,
-            auto_offset_reset='earliest',
-            bootstrap_servers=self.kafka_host,
-            client_id=client,
-            group_id=group,
-            security_protocol='SSL',
-            ssl_cafile=self.kafka_ca,
-            ssl_certfile=self.kafka_cert,
-            ssl_keyfile=self.kafka_key
-        )
+        try:
+            return KafkaConsumer(
+                self.kafka_topic,
+                auto_offset_reset='earliest',
+                bootstrap_servers=self.kafka_host,
+                client_id=client,
+                group_id=group,
+                security_protocol='SSL',
+                ssl_cafile=self.kafka_ca,
+                ssl_certfile=self.kafka_cert,
+                ssl_keyfile=self.kafka_key
+            )
+        except Exception as issue:
+            raise MSAKafkaConsumerException(
+                f'Creating kafka consumer failed with: {issue!r}'
+            )
