@@ -13,3 +13,6 @@ psycopg2-binary
 
 # Access to kafka
 kafka-python
+
+# Transport schema
+cerberus
