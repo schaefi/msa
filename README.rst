@@ -29,7 +29,7 @@ Setup Service Configurations
 ----------------------------
 
 MSA sends metrics to a kafka message broker and stores this
-information in a￼PostgreSQL database. Therefore two config
+information in a PostgreSQL database. Therefore two config
 files including the access credentials to these services needs
 to be created as follows
 
