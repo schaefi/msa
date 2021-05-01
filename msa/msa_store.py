@@ -41,7 +41,10 @@ from msa.kafka import MSAKafka
 from msa.database import MSADataBase
 from msa.defaults import Defaults
 from msa.logger import MSALogger
-from msa.exceptions import exception_handler
+from msa.exceptions import (
+    exception_handler,
+    MSAMetricsInsertException
+)
 
 log = MSALogger.get_logger()
 
@@ -81,9 +84,13 @@ def store_to_database(messages: List, db: MSADataBase):
     for message in messages:
         log.info('Writing message to database...')
         log.info(f'--> {message}')
-        # TODO: try block
-        db.insert(
-            message.get('page'), message.get('date'),
-            message.get('status'), message.get('rtime'),
-            message.get('tag')
-        )
+        try:
+            db.insert(
+                message['page'], message['date'],
+                message['status'], message['rtime'],
+                message['tag']
+            )
+        except KeyError as issue:
+            raise MSAMetricsInsertException(
+                f'Insert of expected MSAMetrics data failed with: {issue!r}'
+            )

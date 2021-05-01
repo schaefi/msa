@@ -4,7 +4,11 @@ from mock import (
 from pytest import raises
 from textwrap import dedent
 from msa.database import MSADataBase
-from msa.exceptions import MSAConfigFileNotFoundError
+from msa.exceptions import (
+    MSAConfigFileNotFoundError,
+    MSADatabaseQueryException,
+    MSADatabaseConnectionException
+)
 
 
 class TestMSADataBase:
@@ -17,6 +21,17 @@ class TestMSADataBase:
     def test_config_file_not_found(self):
         with raises(MSAConfigFileNotFoundError):
             MSADataBase('../data/foo')
+
+    @patch('psycopg2.connect')
+    def test_database_connection_raises(self, mock_psycopg2_connect):
+        mock_psycopg2_connect.side_effect = Exception
+        with raises(MSADatabaseConnectionException):
+            MSADataBase('../data/db.yml')
+
+    def test_database_query_raised(self):
+        self.msa_db.db_cursor.execute.side_effect = Exception
+        with raises(MSADatabaseQueryException):
+            self.msa_db.delete_table()
 
     def test_delete_table(self):
         self.msa_db.delete_table()
