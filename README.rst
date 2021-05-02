@@ -10,25 +10,25 @@ Web Check, monitor page metrics.
 
 MSA consists out of the following tools:
 
-`msa-init`
-  Initializes the toolchain. `msa-init` is expected to be called once
+**msa-init**
+  Initializes the toolchain. **msa-init** is expected to be called once
   and checks for the availability of the required kafka and
   PostgreSQL database services, as well as creates the initial
   table layout in the database.
 
-`msa-lookup`
+**msa-lookup**
   A tool to fetch request metrics from a web page. The collected
   information contains; The page URL, date, response time, status code
   and an optional information on the match result of a regexp applied
   to the request content. The data is stored as a message to the kafka
-  service. `msa-lookup` is expected to be called often and for
+  service. **msa-lookup** is expected to be called often and for
   different locations.
  
-`msa-store`
+**msa-store**
   A tool to read the messages from the kafka service. Only information
   which is valid against the MSA transport protocol will be taken
   into account. Valid information is stored in the PostgreSQL database.
-  `msa-store` is expected to be called as a service through systemd
+  **msa-store** is expected to be called as a service through systemd
   but can also be used in single shot mode.
 
 Installation
@@ -93,12 +93,12 @@ Check and Initialize Services
 
 For MSA to work correctly kafka and PostgreSQL services are required.
 
-Before calling the `msa-init` setup, check on the following pre conditions:
+Before calling the **msa-init** setup, check on the following pre conditions:
 
 1. Start a kafka service
 2. Start a PostgreSQL service
-3. Make sure you have created the `topic-name` configured
-   in `~/.config/msa/kafka.yml` on the kafka admin console.
+3. Make sure you have created the **topic-name** configured
+   in *~/.config/msa/kafka.yml* on the kafka admin console.
 
 The MSA init process currently does not create the services and the
 kafka topic. Thus the above steps MUST be done manually.
@@ -134,9 +134,9 @@ checkers as you see fit
 Start Database Store
 --------------------
 
-The collection of web checkers through `msa-lookup` causes the
+The collection of web checkers through **msa-lookup** causes the
 creation of a collection of messages in the kafka service. With
-the `msa-store` utility those messages can be stored in the
+the **msa-store** utility those messages can be stored in the
 PostgreSQL database. To start the service call
 
 .. code:: shell-session
@@ -168,7 +168,7 @@ environment, follow these steps:
    Calling python code from within a virtual environment
    requires this environment to be active in the calling
    console session. For this purpose a simple helper
-   programm named *run* exists. Thus if you plan to
+   programm named **run** exists. Thus if you plan to
    work from source, please always call the tools through
    the run helper like in the following example:
 
