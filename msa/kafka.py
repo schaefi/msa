@@ -36,7 +36,7 @@ class MSAKafka:
     Implements Kafka message handling in the context of MSA
 
     Messages send by an instance of MSAKafka uses a
-    a transport_schema which matches the information provided
+    transport_schema which matches the information provided
     by data from MSAMetrics. Reading of messages via
     MSAKafka validates the data against the
     transport_schema.
