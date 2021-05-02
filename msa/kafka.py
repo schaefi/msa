@@ -22,12 +22,11 @@ from kafka import KafkaConsumer
 from kafka import KafkaProducer
 from msa.metrics import MSAMetrics
 from msa.transport_schema import transport_schema
+from msa.logger import MSALogger
 from msa.exceptions import (
     MSAConfigFileNotFoundError,
     MSAKafkaProducerException,
-    MSAKafkaConsumerException,
-    MSAKafkaTransportSchemaException,
-    MSAYamlLoadException
+    MSAKafkaConsumerException
 )
 
 
@@ -102,6 +101,7 @@ class MSAKafka:
         """
         metrics_list = []
         message_consumer = self.__create_ssl_consumer()
+        log = MSALogger.get_logger()
         # Call poll twice. First call will just assign partitions
         # for the consumer without content. This information was
         # taken from the Aiven help center
@@ -111,21 +111,22 @@ class MSAKafka:
                 for message in message_list:
                     try:
                         message_as_yaml = yaml.safe_load(message.value)
-                    except Exception as issue:
-                        raise MSAYamlLoadException(
+                        validator = Validator(transport_schema)
+                        validator.validate(
+                            message_as_yaml, transport_schema
+                        )
+                        if validator.errors:
+                            log.error(
+                                'Validation for "{0}" failed with: {1}'.format(
+                                    message_as_yaml, validator.errors
+                                )
+                            )
+                        else:
+                            metrics_list.append(message_as_yaml)
+                    except yaml.YAMLError as issue:
+                        log.error(
                             f'YAML load for {message!r} failed with: {issue!r}'
                         )
-                    validator = Validator(transport_schema)
-                    validator.validate(
-                        message_as_yaml, transport_schema
-                    )
-                    if validator.errors:
-                        raise MSAKafkaTransportSchemaException(
-                            'Validation for "{0}" failed with: {1}'.format(
-                                message_as_yaml, validator.errors
-                            )
-                        )
-                    metrics_list.append(message_as_yaml)
         # Acknowledge message so we don't get it again for
         # this client/group
         message_consumer.commit()
