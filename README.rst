@@ -11,7 +11,7 @@ Web Check, monitor page metrics.
 MSA consists out of the following tools:
 
 `msa-init`
-  Initialize the toolchain. `msa-init` is expected to be called once
+  Initializes the toolchain. `msa-init` is expected to be called once
   and checks for the availability of the required kafka and
   PostgreSQL database services, as well as creates the initial
   table layout in the database.
@@ -166,10 +166,10 @@ environment, follow these steps:
 .. note:: Calling from Python Venv
 
    Calling python code from within a virtual environment
-   requires this environment be active in the calling
+   requires this environment to be active in the calling
    console session. For this purpose a simple helper
-   programm named `run` exists. Thus if you plan to
-   work from source please always call the tools through
+   programm named *run* exists. Thus if you plan to
+   work from source, please always call the tools through
    the run helper like in the following example:
 
    .. code:: shell-session
