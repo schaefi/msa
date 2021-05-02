@@ -34,8 +34,12 @@ jobs:
         echo "$AIVEN_SERVICE" > auth.b64
         echo "$HOME"
         base64 --decode auth.b64 | tar -C $HOME -xvz
+        echo "Initializing MSA..."
         ./run msa-init --init-db
+        echo "Retrieve some metrics..."
         ./run msa-lookup --page https://www.google.de --regexp .*Google
+        echo "Store into database..."
         ./run msa-store --single-shot
+        echo "Query database contents..."
         ./run msa-store --dump-db
         
