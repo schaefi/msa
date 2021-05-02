@@ -145,7 +145,7 @@ contents with:
 
 .. code:: shell-session
 
-   $ ms-store --dump-db
+   $ msa-store --dump-db
 
 Run from Source
 ---------------
