@@ -8,25 +8,28 @@ MSA - Web Check
 
 Web Check, monitor page metrics.
 
-MSA consists out of three tools:
+MSA consists out of the following tools:
 
 `msa-init`
-  A tool to initialize and setup the database and kafka services
-  used by the following tools. `msa-init` is expected to be called once
+  Initialize the toolchain. `msa-init` is expected to be called once
+  and checks for the availability of the required kafka and
+  PostgreSQL database services, as well as creates the initial
+  table layout in the database.
 
 `msa-lookup`
   A tool to fetch request metrics from a web page. The collected
   information contains; The page URL, date, response time, status code
   and an optional information on the match result of a regexp applied
-  to the request content. The data is stored as a message to a kafka
+  to the request content. The data is stored as a message to the kafka
   service. `msa-lookup` is expected to be called often and for
   different locations.
  
 `msa-store`
-  A tool to read the messages from the kafka service written by `msa-lookup`
-  and to store them in a PostgreSQL database. `msa-store` is expected
-  to be called as a service through systemd but can also be used in
-  single shot mode.
+  A tool to read the messages from the kafka service. Only information
+  which is valid against the MSA transport protocol will be taken
+  into account. Valid information is stored in the PostgreSQL database.
+  `msa-store` is expected to be called as a service through systemd
+  but can also be used in single shot mode.
 
 Installation
 ------------
