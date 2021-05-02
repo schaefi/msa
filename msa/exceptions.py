@@ -95,17 +95,3 @@ class MSADatabaseConnectionException(MSAError):
     """
     Exception raised if the connection to the database failed
     """
-
-
-class MSAYamlLoadException(MSAError):
-    """
-    Exception raised if the YAML loading of data read from
-    the kafka topic failed
-    """
-
-
-class MSAKafkaTransportSchemaException(MSAError):
-    """
-    Exception raised if the kafka read message is not valid
-    against the MSA transport schema
-    """

@@ -1,19 +1,24 @@
+import logging
 from mock import (
     Mock, patch
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 from collections import namedtuple
 from msa.kafka import MSAKafka
 from msa.exceptions import (
     MSAConfigFileNotFoundError,
     MSAKafkaProducerException,
-    MSAKafkaConsumerException,
-    MSAKafkaTransportSchemaException,
-    MSAYamlLoadException
+    MSAKafkaConsumerException
 )
 
 
 class TestMSAKafka:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         self.kafka = MSAKafka('../data/kafka.yml')
 
@@ -82,8 +87,10 @@ class TestMSAKafka:
         message_consumer.poll.side_effect = poll
         mock_KafkaConsumer.return_value = message_consumer
 
-        with raises(MSAYamlLoadException):
+        with self._caplog.at_level(logging.ERROR):
             self.kafka.read()
+            assert "ParserError('while parsing a flow mapping" in \
+                self._caplog.text
 
     @patch('msa.kafka.KafkaConsumer')
     def test_read_invalid_for_transport_schema(self, mock_KafkaConsumer):
@@ -109,8 +116,9 @@ class TestMSAKafka:
         message_consumer.poll.side_effect = poll
         mock_KafkaConsumer.return_value = message_consumer
 
-        with raises(MSAKafkaTransportSchemaException):
+        with self._caplog.at_level(logging.ERROR):
             self.kafka.read()
+            assert "{'date': ['required field']" in self._caplog.text
 
     @patch('msa.kafka.KafkaConsumer')
     def test_read(self, mock_KafkaConsumer):
