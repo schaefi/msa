@@ -36,28 +36,29 @@ class TestMSADataBase:
     def test_delete_table(self):
         self.msa_db.delete_table()
         self.msa_db.db_cursor.execute.assert_called_once_with(
-            'DROP TABLE IF EXISTS webcheck'
+            'DROP TABLE IF EXISTS geowebcheck'
         )
 
     def test_create_table(self):
         self.msa_db.create_table()
-        create_table_webcheck = dedent('''
-            CREATE TABLE webcheck
+        create_table_geowebcheck = dedent('''
+            CREATE TABLE geowebcheck
             (ID INT GENERATED ALWAYS AS IDENTITY,
             PAGE     TEXT        NOT NULL,
             DATE     TIMESTAMP   NOT NULL,
             STATUS   INTEGER     NOT NULL,
             RTIME    REAL        NOT NULL,
-            TAG      TEXT)
+            TAG      TEXT,
+            GEO      TEXT)
         ''').strip()
         self.msa_db.db_cursor.execute.assert_called_once_with(
-            create_table_webcheck
+            create_table_geowebcheck
         )
 
     def test_dump_table(self):
         self.msa_db.dump_table()
         self.msa_db.db_cursor.execute.assert_called_once_with(
-            'SELECT * FROM webcheck'
+            'SELECT * FROM geowebcheck'
         )
 
     def test_insert_table(self):
@@ -65,24 +66,25 @@ class TestMSADataBase:
         self.msa_db.insert(
             'https://example.org', '2021-04-29T01:55:19+00:00', 404, 42
         )
-        insert_into_webcheck = dedent('''
-            INSERT INTO webcheck
-            (PAGE, DATE, STATUS, RTIME, TAG)
-            VALUES($$https://example.org$$, '2021-04-29 01:55:19', 404, 42, $$NULL$$)
+        insert_into_geowebcheck = dedent('''
+            INSERT INTO geowebcheck
+            (PAGE, DATE, STATUS, RTIME, TAG, GEO)
+            VALUES($$https://example.org$$, '2021-04-29 01:55:19', 404, 42, $$NULL$$, $$NULL$$)
         ''').strip()
         self.msa_db.db_cursor.execute.assert_called_once_with(
-            insert_into_webcheck
+            insert_into_geowebcheck
         )
         # test on insert with some tag
         self.msa_db.db_cursor.execute.reset_mock()
         self.msa_db.insert(
-            'https://example.org', '2021-04-29T01:55:19+00:00', 404, 42, 'tag'
+            'https://example.org', '2021-04-29T01:55:19+00:00',
+            404, 42, 'tag', 'geo'
         )
-        insert_into_webcheck = dedent('''
-            INSERT INTO webcheck
-            (PAGE, DATE, STATUS, RTIME, TAG)
-            VALUES($$https://example.org$$, '2021-04-29 01:55:19', 404, 42, $$tag$$)
+        insert_into_geowebcheck = dedent('''
+            INSERT INTO geowebcheck
+            (PAGE, DATE, STATUS, RTIME, TAG, GEO)
+            VALUES($$https://example.org$$, '2021-04-29 01:55:19', 404, 42, $$tag$$, $$geo$$)
         ''').strip()
         self.msa_db.db_cursor.execute.assert_called_once_with(
-            insert_into_webcheck
+            insert_into_geowebcheck
         )

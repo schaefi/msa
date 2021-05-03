@@ -64,7 +64,7 @@ class MSAKafka:
         self.kafka_ca = self.kafka_config['ssl_cafile']
         self.kafka_cert = self.kafka_config['ssl_certfile']
         self.kafka_key = self.kafka_config['ssl_keyfile']
-        self.schema_version = 0.1
+        self.schema_version = 0.2
 
     def send(self, metrics: MSAMetrics) -> None:
         """
@@ -81,7 +81,8 @@ class MSAKafka:
             'date': metrics.get_response_date(),
             'status': metrics.get_status_code(),
             'rtime': metrics.get_response_time(),
-            'tag': metrics.get_tag()
+            'tag': metrics.get_tag(),
+            'geo': metrics.get_geolocation()
         }
         message_broker.send(
             self.kafka_topic, yaml.dump(metrics_dict).encode()

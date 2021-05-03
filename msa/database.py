@@ -59,7 +59,7 @@ class MSADataBase:
             raise MSADatabaseConnectionException(
                 f'Database connection failed with: {issue!r}'
             )
-        self.metrics_table_name = 'webcheck'
+        self.metrics_table_name = 'geowebcheck'
 
     def delete_table(self) -> None:
         """
@@ -74,7 +74,7 @@ class MSADataBase:
         """
         Create table
 
-        ID | PAGE | DATE | STATUS | RTIME | TAG
+        ID | PAGE | DATE | STATUS | RTIME | TAG | GEO
 
         * ID: Self generated entry id
         * PAGE: Web page URI
@@ -82,6 +82,7 @@ class MSADataBase:
         * STATUS: Request status code
         * RTIME: Request response time
         * TAG: Free form tag data associated with request content
+        * GEO: Geo Location Information
         """
         create_table = dedent('''
             CREATE TABLE {table}
@@ -90,7 +91,8 @@ class MSADataBase:
             DATE     TIMESTAMP   NOT NULL,
             STATUS   INTEGER     NOT NULL,
             RTIME    REAL        NOT NULL,
-            TAG      TEXT)
+            TAG      TEXT,
+            GEO      TEXT)
         ''').format(table=self.metrics_table_name).strip()
         self.__execute(create_table)
 
@@ -110,7 +112,7 @@ class MSADataBase:
 
     def insert(
         self, url: str, date: str, status_code: int,
-        response_time: float, tag: str = None
+        response_time: float, tag: str = None, geo: str = None
     ) -> None:
         """
         Insert into table
@@ -126,15 +128,16 @@ class MSADataBase:
         )
         insert_into = dedent('''
             INSERT INTO {table}
-            (PAGE, DATE, STATUS, RTIME, TAG)
-            VALUES($${page}$$, '{date}', {status}, {rtime}, $${tag}$$)
+            (PAGE, DATE, STATUS, RTIME, TAG, GEO)
+            VALUES($${page}$$, '{date}', {status}, {rtime}, $${tag}$$, $${geo}$$)
         ''').format(
             table=self.metrics_table_name,
             page=url,
             date=request_date,
             status=status_code,
             rtime=response_time,
-            tag=tag if tag else 'NULL'
+            tag=tag if tag else 'NULL',
+            geo=geo if geo else 'NULL'
         ).strip()
         self.__execute(insert_into)
 
