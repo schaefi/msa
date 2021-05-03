@@ -36,5 +36,9 @@ transport_schema = {
         'required': True,
         'type': 'string',
         'nullable': True
+    },
+    'geo': {
+        'required': True,
+        'type': 'string'
     }
 }

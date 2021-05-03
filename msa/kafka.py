@@ -79,7 +79,8 @@ class MSAKafka:
             'date': metrics.get_response_date(),
             'status': metrics.get_status_code(),
             'rtime': metrics.get_response_time(),
-            'tag': metrics.get_tag()
+            'tag': metrics.get_tag(),
+            'geo': metrics.get_geolocation()
         }
         message_broker.send(
             self.kafka_topic, yaml.dump(metrics_dict).encode()

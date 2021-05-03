@@ -73,7 +73,7 @@ class MSADataBase:
         """
         Create table: webcheck
 
-        ID | PAGE | DATE | STATUS | RTIME | TAG
+        ID | PAGE | DATE | STATUS | RTIME | TAG | GEO
 
         * ID: Self generated entry id
         * PAGE: Web page URI
@@ -81,6 +81,7 @@ class MSADataBase:
         * STATUS: Request status code
         * RTIME: Request response time
         * TAG: Free form tag data associated with request content
+        * GEO: Geo Location Information
         """
         create_table_webcheck = dedent('''
             CREATE TABLE webcheck
@@ -89,7 +90,8 @@ class MSADataBase:
             DATE     TIMESTAMP   NOT NULL,
             STATUS   INTEGER     NOT NULL,
             RTIME    REAL        NOT NULL,
-            TAG      TEXT)
+            TAG      TEXT,
+            GEO      TEXT)
         ''').strip()
         self.__execute(create_table_webcheck)
 
@@ -109,7 +111,7 @@ class MSADataBase:
 
     def insert(
         self, url: str, date: str, status_code: int,
-        response_time: float, tag: str = None
+        response_time: float, tag: str = None, geo: str = None
     ) -> None:
         """
         Insert into webcheck
@@ -125,14 +127,15 @@ class MSADataBase:
         )
         insert_into_webcheck = dedent('''
             INSERT INTO webcheck
-            (PAGE, DATE, STATUS, RTIME, TAG)
-            VALUES($${0}$$, '{1}', {2}, {3}, $${4}$$)
+            (PAGE, DATE, STATUS, RTIME, TAG, GEO)
+            VALUES($${0}$$, '{1}', {2}, {3}, $${4}$$, $${5}$$)
         ''').format(
             url,
             request_date,
             status_code,
             response_time,
-            tag if tag else 'NULL'
+            tag if tag else 'NULL',
+            geo if geo else 'NULL'
         ).strip()
         self.__execute(insert_into_webcheck)
 

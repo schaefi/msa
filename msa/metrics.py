@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with MSA.  If not, see <http://www.gnu.org/licenses/>
 #
+import socket
+from urllib.request import Request
 from datetime import datetime
 from typing import Optional
 from msa.logger import MSALogger
@@ -46,12 +48,19 @@ class MSAMetrics:
         self.response_status_code = -1
         self.response_elapsed_total_seconds = -1.0
         self.content_matches_expression = False
+        self.geolocation = {}
         try:
             response = requests.get(url, timeout=timeout)
             self.response_status_code = response.status_code
             self.response_elapsed_total_seconds = \
                 response.elapsed.total_seconds()
             self.response_content = response.content
+            source_ip = socket.gethostbyname(
+                Request(url).host
+            )
+            self.geolocation = requests.get(
+                f'https://geolocation-db.com/json/{source_ip}&position=true'
+            ).json()
         except requests.exceptions.RequestException as issue:
             log.error(f'Request failed with: {issue!r}')
 
@@ -59,6 +68,16 @@ class MSAMetrics:
             self.content_matches_expression = bool(
                 re.match(f'{self.expression}', format(self.response_content))
             )
+
+    def get_geolocation(self) -> str:
+        """
+        Return request geolocation details
+
+        :return: The geolocation dictionary as provided by geolocation-db.com
+
+        :rtype: Dict
+        """
+        return f'{self.geolocation}'
 
     def get_page(self) -> str:
         """
