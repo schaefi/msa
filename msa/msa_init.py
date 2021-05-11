@@ -45,7 +45,7 @@ log = MSALogger.get_logger()
 def main() -> None:
     args = docopt(
         __doc__,
-        version='MSA (lookup) version ' + __version__,
+        version='MSA (init) version ' + __version__,
         options_first=True
     )
     if args['--verbose']:
