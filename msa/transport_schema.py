@@ -16,6 +16,11 @@
 # along with MSA.  If not, see <http://www.gnu.org/licenses/>
 #
 transport_schema = {
+    'version': {
+        'required': True,
+        'type': 'number',
+        'nullable': False
+    },
     'page': {
         'required': True,
         'type': 'string'

@@ -97,8 +97,9 @@ def main() -> None:
 
 def store_to_database(messages: List, db: MSADataBase):
     for message in messages:
-        log.info('Writing message to database...')
-        log.info(f'--> {message}')
+        log.info(
+            f'Writing metrics record for {message["page"]!r} to database...'
+        )
         db.insert(
             message['page'],
             message['date'],

@@ -60,7 +60,7 @@ class TestMSAKafka:
         message_broker.send.assert_called_once_with(
             'ms-intro',
             b'date: date\npage: http://example.com\nrtime: '
-            b'time\nstatus: 42\ntag: null\n'
+            b'time\nstatus: 42\ntag: null\nversion: 0.1\n'
         )
 
     @patch('msa.kafka.KafkaConsumer')
@@ -134,7 +134,8 @@ class TestMSAKafka:
                 'topic_partition': [
                     message_type(
                         value=b'page: http://example.com\n'
-                        b'date: date\nstatus: 42\nrtime: 42\ntag: tag'
+                        b'date: date\nstatus: 42\nrtime: 42\ntag: tag\n'
+                        b'version: 0.1\n'
                     )
                 ]
             },
@@ -149,6 +150,7 @@ class TestMSAKafka:
 
         assert self.kafka.read() == [
             {
+                'version': 0.1,
                 'page': 'http://example.com',
                 'date': 'date',
                 'status': 42,
