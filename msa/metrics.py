@@ -42,7 +42,6 @@ class MSAMetrics:
         self.url = url
         self.expression = matches
         self.response_date = datetime.utcnow()
-        self.response_content = b''
         self.response_status_code = -1
         self.response_elapsed_total_seconds = -1.0
         self.content_matches_expression = False
@@ -51,14 +50,12 @@ class MSAMetrics:
             self.response_status_code = response.status_code
             self.response_elapsed_total_seconds = \
                 response.elapsed.total_seconds()
-            self.response_content = response.content
+            if self.expression:
+                self.content_matches_expression = bool(
+                    re.match(f'{self.expression}', format(response.content))
+                )
         except requests.exceptions.RequestException as issue:
             log.error(f'Request failed with: {issue!r}')
-
-        if self.expression and self.response_content:
-            self.content_matches_expression = bool(
-                re.match(f'{self.expression}', format(self.response_content))
-            )
 
     def get_page(self) -> str:
         """
