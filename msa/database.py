@@ -59,19 +59,20 @@ class MSADataBase:
             raise MSADatabaseConnectionException(
                 f'Database connection failed with: {issue!r}'
             )
+        self.metrics_table_name = 'webcheck'
 
     def delete_table(self) -> None:
         """
-        Delete Table: webcheck
+        Delete Table
         """
-        delete_table_webcheck = dedent('''
-            DROP TABLE webcheck
-        ''').strip()
-        self.__execute(delete_table_webcheck)
+        delete_table = dedent('''
+            DROP TABLE {table}
+        ''').format(table=self.metrics_table_name).strip()
+        self.__execute(delete_table)
 
     def create_table(self) -> None:
         """
-        Create table: webcheck
+        Create table
 
         ID | PAGE | DATE | STATUS | RTIME | TAG
 
@@ -82,29 +83,29 @@ class MSADataBase:
         * RTIME: Request response time
         * TAG: Free form tag data associated with request content
         """
-        create_table_webcheck = dedent('''
-            CREATE TABLE webcheck
+        create_table = dedent('''
+            CREATE TABLE {table}
             (ID INT GENERATED ALWAYS AS IDENTITY,
             PAGE     TEXT        NOT NULL,
             DATE     TIMESTAMP   NOT NULL,
             STATUS   INTEGER     NOT NULL,
             RTIME    REAL        NOT NULL,
             TAG      TEXT)
-        ''').strip()
-        self.__execute(create_table_webcheck)
+        ''').format(table=self.metrics_table_name).strip()
+        self.__execute(create_table)
 
     def dump_table(self) -> List:
         """
-        Select from webcheck and returns the table contents
+        Select from table and returns its contents
 
         :return: Returns a list of RealDictRow entries
 
         :rtype: list
         """
-        dump_table_webcheck = dedent('''
-            SELECT * FROM webcheck
-        ''').strip()
-        self.__execute(dump_table_webcheck, commit=False)
+        dump_table = dedent('''
+            SELECT * FROM {table}
+        ''').format(table=self.metrics_table_name).strip()
+        self.__execute(dump_table, commit=False)
         return self.db_cursor.fetchall()
 
     def insert(
@@ -112,7 +113,7 @@ class MSADataBase:
         response_time: float, tag: str = None
     ) -> None:
         """
-        Insert into webcheck
+        Insert into table
 
         :param str url: Web page URI
         :param str date: date of the format: %Y-%m-%dT%H:%M:%S+00:00
@@ -123,18 +124,19 @@ class MSADataBase:
         request_date = datetime.strptime(
             date, '%Y-%m-%dT%H:%M:%S+00:00'
         )
-        insert_into_webcheck = dedent('''
-            INSERT INTO webcheck
+        insert_into = dedent('''
+            INSERT INTO {table}
             (PAGE, DATE, STATUS, RTIME, TAG)
-            VALUES($${0}$$, '{1}', {2}, {3}, $${4}$$)
+            VALUES($${page}$$, '{date}', {status}, {rtime}, $${tag}$$)
         ''').format(
-            url,
-            request_date,
-            status_code,
-            response_time,
-            tag if tag else 'NULL'
+            table=self.metrics_table_name,
+            page=url,
+            date=request_date,
+            status=status_code,
+            rtime=response_time,
+            tag=tag if tag else 'NULL'
         ).strip()
-        self.__execute(insert_into_webcheck)
+        self.__execute(insert_into)
 
     def __execute(self, query: str, commit: bool = True) -> None:
         """
