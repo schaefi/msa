@@ -66,7 +66,7 @@ class MSADataBase:
         Delete Table
         """
         delete_table = dedent('''
-            DROP TABLE {table}
+            DROP TABLE IF EXISTS {table}
         ''').format(table=self.metrics_table_name).strip()
         self.__execute(delete_table)
 

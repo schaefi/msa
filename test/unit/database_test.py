@@ -36,7 +36,7 @@ class TestMSADataBase:
     def test_delete_table(self):
         self.msa_db.delete_table()
         self.msa_db.db_cursor.execute.assert_called_once_with(
-            'DROP TABLE webcheck'
+            'DROP TABLE IF EXISTS webcheck'
         )
 
     def test_create_table(self):
