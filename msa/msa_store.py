@@ -105,5 +105,6 @@ def store_to_database(messages: List, db: MSADataBase):
             message['date'],
             message['status'],
             message['rtime'],
-            message['tag']
+            message['tag'],
+            message['geo']
         )

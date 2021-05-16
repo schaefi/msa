@@ -48,6 +48,7 @@ class TestMSAKafka:
         metrics.get_status_code.return_value = 42
         metrics.get_response_time.return_value = 'time'
         metrics.get_tag.return_value = None
+        metrics.get_geolocation.return_value = None
         self.kafka.send(metrics)
 
         mock_KafkaProducer.assert_called_once_with(
@@ -59,8 +60,8 @@ class TestMSAKafka:
         )
         message_broker.send.assert_called_once_with(
             'ms-intro',
-            b'date: date\npage: http://example.com\nrtime: '
-            b'time\nstatus: 42\ntag: null\nversion: 0.1\n'
+            b'date: date\ngeo: null\npage: http://example.com\nrtime: '
+            b'time\nstatus: 42\ntag: null\nversion: 0.2\n'
         )
 
     @patch('msa.kafka.KafkaConsumer')
@@ -134,8 +135,8 @@ class TestMSAKafka:
                 'topic_partition': [
                     message_type(
                         value=b'page: http://example.com\n'
-                        b'date: date\nstatus: 42\nrtime: 42\ntag: tag\n'
-                        b'version: 0.1\n'
+                        b'date: date\ngeo: geo\nstatus: 42\nrtime: 42\n'
+                        b'tag: tag\nversion: 0.2\n'
                     )
                 ]
             },
@@ -150,12 +151,13 @@ class TestMSAKafka:
 
         assert self.kafka.read() == [
             {
-                'version': 0.1,
+                'version': 0.2,
                 'page': 'http://example.com',
                 'date': 'date',
                 'status': 42,
                 'rtime': 42,
-                'tag': 'tag'
+                'tag': 'tag',
+                'geo': 'geo'
             }
         ]
 
