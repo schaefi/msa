@@ -16,14 +16,14 @@ install:
 	# install plugin manual page and license/readme
 	# NOTE: this file is not handled through pip because on system level
 	install -d -m 755 ${buildroot}usr/share/man/man8
-	gzip -f doc/build/man/msa::init.8
-	install -m 644 doc/build/man/msa::init.8.gz \
+	gzip -f doc/build/man/8/msa::init.8
+	install -m 644 doc/build/man/8/msa::init.8.gz \
 		${buildroot}usr/share/man/man8
-	gzip -f doc/build/man/msa::lookup.8
-	install -m 644 doc/build/man/msa::lookup.8.gz \
+	gzip -f doc/build/man/8/msa::lookup.8
+	install -m 644 doc/build/man/8/msa::lookup.8.gz \
 		${buildroot}usr/share/man/man8
-	gzip -f doc/build/man/msa::store.8
-	install -m 644 doc/build/man/msa::store.8.gz \
+	gzip -f doc/build/man/8/msa::store.8
+	install -m 644 doc/build/man/8/msa::store.8.gz \
 		${buildroot}usr/share/man/man8
 	install -d -m 755 ${buildroot}${docdir}/python-msa
 	install -m 644 LICENSE \
